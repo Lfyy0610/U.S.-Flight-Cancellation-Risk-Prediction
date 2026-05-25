@@ -1,1 +1,18 @@
+# Python environment and cache
+__pycache__/
+*.py[cod]
+*$py.class
 .DS_Store
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+flaml_training.log
+
+# MLflow tracking directory
+mlruns/
+
+# Data files
+*.csv
