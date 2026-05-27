@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flight Cancellation Drift Monitoring Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; color: #1f2937; }
+    h1, h2 { color: #111827; }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+    .metric { border: 1px solid #d1d5db; border-radius: 6px; padding: 14px; background: #f9fafb; }
+    .metric strong { display: block; font-size: 24px; margin-top: 6px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+    th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; vertical-align: top; }
+    th { background: #e5e7eb; }
+    tr.high td { background: #fee2e2; }
+    tr.moderate td { background: #fef3c7; }
+    tr.low td { background: #ecfdf5; }
+    .note { background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px; margin: 18px 0; }
+    code { background: #f3f4f6; padding: 2px 4px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Flight Cancellation Drift Monitoring Report</h1>
+  <p>Reference data is the original 2023 test slice. Current data is a deterministic modified version used to simulate production drift.</p>
+
+  <div class="summary">
+    <div class="metric">Reference rows<strong>5,000</strong></div>
+    <div class="metric">Current rows<strong>5,000</strong></div>
+    <div class="metric">High drift features<strong>6</strong></div>
+    <div class="metric">Moderate drift features<strong>1</strong></div>
+  </div>
+
+  <div class="note">
+    PSI interpretation: below 0.10 is low drift, 0.10 to 0.25 is moderate drift, and 0.25 or above is high drift.
+  </div>
+
+  <h2>Feature Drift Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>PSI</th>
+        <th>Drift Level</th>
+        <th>Original Test Distribution</th>
+        <th>Modified Test Distribution</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+        <tr class="high">
+          <td>ROUTE</td>
+          <td>1.9407</td>
+          <td>High</td>
+          <td>PHX_SEA: 0.3%<br>LAX_ORD: 0.3%<br>LAS_LAX: 0.2%<br>DEN_SEA: 0.2%<br>SAN_SMF: 0.2%</td>
+          <td>LAX_ATL: 1.5%<br>LAX_DFW: 1.4%<br>LAX_ORD: 1.4%<br>LAX_DEN: 1.2%<br>LAX_EWR: 1.0%</td>
+        </tr>
+        
+
+        <tr class="high">
+          <td>ORIGIN</td>
+          <td>0.8796</td>
+          <td>High</td>
+          <td>ATL: 5.3%<br>DFW: 4.1%<br>DEN: 4.0%<br>ORD: 3.8%<br>CLT: 3.0%</td>
+          <td>LAX: 31.6%<br>ATL: 3.7%<br>DEN: 2.9%<br>DFW: 2.8%<br>ORD: 2.7%</td>
+        </tr>
+        
+
+        <tr class="high">
+          <td>DEP_PERIOD</td>
+          <td>0.5851</td>
+          <td>High</td>
+          <td>morning: 38.8%<br>afternoon: 27.8%<br>evening: 22.5%<br>night: 7.6%<br>red_eye: 3.2%</td>
+          <td>morning: 28.7%<br>red_eye: 27.3%<br>afternoon: 21.1%<br>evening: 17.0%<br>night: 5.9%</td>
+        </tr>
+        
+
+        <tr class="high">
+          <td>AIRLINE_CODE</td>
+          <td>0.4366</td>
+          <td>High</td>
+          <td>WN: 21.6%<br>DL: 14.5%<br>AA: 14.2%<br>UA: 9.9%<br>OO: 9.4%</td>
+          <td>WN: 52.6%<br>DL: 9.1%<br>AA: 8.8%<br>OO: 5.8%<br>UA: 5.6%</td>
+        </tr>
+        
+
+        <tr class="high">
+          <td>DEP_HOUR</td>
+          <td>0.3951</td>
+          <td>High</td>
+          <td>6: 7.1%<br>8: 6.9%<br>7: 6.5%<br>18: 6.5%<br>11: 6.5%</td>
+          <td>23: 25.8%<br>8: 5.1%<br>18: 5.0%<br>6: 5.0%<br>7: 4.9%</td>
+        </tr>
+        
+
+        <tr class="high">
+          <td>DEP_MIN</td>
+          <td>0.3745</td>
+          <td>High</td>
+          <td>0: 11.3%<br>30: 7.1%<br>15: 5.2%<br>10: 5.0%<br>45: 5.0%</td>
+          <td>45: 28.9%<br>0: 8.3%<br>30: 5.4%<br>15: 3.9%<br>10: 3.9%</td>
+        </tr>
+        
+
+        <tr class="moderate">
+          <td>IS_HOLIDAY_SEASON</td>
+          <td>0.1970</td>
+          <td>Moderate</td>
+          <td>0: 87.6%<br>1: 12.4%</td>
+          <td>0: 69.8%<br>1: 30.2%</td>
+        </tr>
+        
+
+        <tr class="low">
+          <td>DEST</td>
+          <td>0.0000</td>
+          <td>Low</td>
+          <td>ATL: 4.8%<br>DFW: 4.1%<br>ORD: 4.0%<br>DEN: 3.9%<br>CLT: 2.9%</td>
+          <td>ATL: 4.8%<br>DFW: 4.1%<br>ORD: 4.0%<br>DEN: 3.9%<br>CLT: 2.9%</td>
+        </tr>
+        
+
+        <tr class="low">
+          <td>IS_WEEKEND</td>
+          <td>0.0000</td>
+          <td>Low</td>
+          <td>0: 72.4%<br>1: 27.6%</td>
+          <td>0: 72.4%<br>1: 27.6%</td>
+        </tr>
+        
+
+        <tr class="low">
+          <td>IS_SUMMER_PEAK</td>
+          <td>0.0000</td>
+          <td>Low</td>
+          <td>0: 62.1%<br>1: 37.9%</td>
+          <td>0: 62.1%<br>1: 37.9%</td>
+        </tr>
+        
+
+        <tr class="low">
+          <td>IS_COVID_YEAR</td>
+          <td>0.0000</td>
+          <td>Low</td>
+          <td>0: 100.0%</td>
+          <td>0: 100.0%</td>
+        </tr>
+        
+    </tbody>
+  </table>
+
+  <h2>Presentation Interpretation</h2>
+  <p>The modified test data intentionally shifts carrier, origin airport, route, departure period, and holiday-season features. These are the same feature families used by the deployed model, so drift in these inputs can change the reliability of cancellation-risk predictions.</p>
+</body>
+</html>

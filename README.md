@@ -196,28 +196,44 @@ http://127.0.0.1:8000/docs
 
 ## Part 4: Monitoring and Drift Demo
 
-This part has not been added to the current repository yet. It should demonstrate how the trained model behaves when the test data distribution changes.
+This part demonstrates data drift monitoring for the deployed cancellation-risk model. It compares the original 2023 test data against a modified current dataset that simulates distribution shifts in carrier, origin airport, route, departure period, departure hour, and holiday-season traffic.
 
-Recommended folder:
+Main files:
 
 ```text
 monitoring/
 ├── drift_demo.py
-├── evidently_report.html
+├── drift_report.html
+├── test_drift_demo.py
 └── README_step4_monitoring.md
 ```
 
-Suggested approach:
+What this part does:
 
-- Use the 2023 test data as the reference or current dataset.
-- Create a modified version of the test data by changing selected distributions, such as:
-  - increasing one airline carrier's share
-  - shifting `DEP_HOUR` toward late-night or early-morning flights
-  - changing `ORIGIN` or `DEST` airport distribution
-  - increasing holiday or summer-peak examples
-- Use Evidently to compare original test data against modified test data.
-- Export a drift report as an HTML file.
-- Explain which features drifted and why that matters for a deployed cancellation-risk model.
+- Uses the 2023 test slice as reference data.
+- Creates a deterministic modified current dataset by changing selected feature distributions.
+- Recomputes deployment features such as `DEP_HOUR`, `DEP_PERIOD`, `IS_HOLIDAY_SEASON`, and `ROUTE`.
+- Computes Population Stability Index (PSI) for categorical and numeric model input features.
+- Exports a browser-readable HTML drift report.
+- Includes lightweight unit tests for feature engineering and drift scoring.
+
+Run the monitoring demo:
+
+```bash
+python3 monitoring/drift_demo.py --sample-size 5000
+```
+
+Run Part 4 tests:
+
+```bash
+python3 -m unittest monitoring/test_drift_demo.py
+```
+
+Generated report:
+
+```text
+monitoring/drift_report.html
+```
 
 ## API Input Schema
 
