@@ -204,6 +204,8 @@ Main files:
 monitoring/
 ├── drift_demo.py
 ├── drift_report.html
+├── scenario_metrics.csv
+├── requirements_monitoring.txt
 ├── test_drift_demo.py
 └── README_step4_monitoring.md
 ```
@@ -213,20 +215,29 @@ What this part does:
 - Uses the 2023 test slice as reference data.
 - Creates a deterministic modified current dataset by changing selected feature distributions.
 - Recomputes deployment features such as `DEP_HOUR`, `DEP_PERIOD`, `IS_HOLIDAY_SEASON`, and `ROUTE`.
-- Computes Population Stability Index (PSI) for categorical and numeric model input features.
-- Exports a browser-readable HTML drift report.
-- Includes lightweight unit tests for feature engineering and drift scoring.
+- Loads the trained `artifacts/model_pipeline.pkl` and scores both reference and current data.
+- Saves scenario-level metrics in `monitoring/scenario_metrics.csv`.
+- Uses Evidently `DataDriftPreset` and `DataSummaryPreset`.
+- Exports a browser-readable Evidently HTML report.
+- Includes lightweight unit tests for feature engineering and scenario construction.
+
+Install monitoring dependencies:
+
+```bash
+python3.11 -m venv .venv
+.venv/bin/python -m pip install -r monitoring/requirements_monitoring.txt
+```
 
 Run the monitoring demo:
 
 ```bash
-python3 monitoring/drift_demo.py --sample-size 5000
+.venv/bin/python monitoring/drift_demo.py --sample-size 5000
 ```
 
 Run Part 4 tests:
 
 ```bash
-python3 -m unittest monitoring/test_drift_demo.py
+.venv/bin/python -m unittest monitoring/test_drift_demo.py
 ```
 
 Generated report:

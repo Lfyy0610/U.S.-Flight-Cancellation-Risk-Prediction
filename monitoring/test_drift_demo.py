@@ -1,72 +1,85 @@
-import unittest
 import sys
+import unittest
 from pathlib import Path
+
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from drift_demo import (
-    build_monitoring_row,
-    categorical_psi,
-    create_modified_current_rows,
-)
+from drift_demo import add_deployment_features, evaluate_scenario, make_modified_current
 
 
-class DriftDemoTests(unittest.TestCase):
-    def test_build_monitoring_row_creates_deployment_features(self):
-        raw = {
-            "FL_DATE": "2023-12-23",
-            "AIRLINE_CODE": "ua",
-            "ORIGIN": "fll",
-            "DEST": "ewr",
-            "CRS_DEP_TIME": "55",
-            "CANCELLED": "0",
-        }
+class EvidentlyDriftDemoTests(unittest.TestCase):
+    def test_add_deployment_features_matches_api_features(self):
+        raw = pd.DataFrame(
+            [
+                {
+                    "FL_DATE": "2023-12-23",
+                    "AIRLINE_CODE": "ua",
+                    "ORIGIN": "fll",
+                    "DEST": "ewr",
+                    "CRS_DEP_TIME": "55",
+                    "CANCELLED": "0",
+                }
+            ]
+        )
 
-        row = build_monitoring_row(raw)
+        result = add_deployment_features(raw).iloc[0]
 
-        self.assertEqual(row["YEAR"], 2023)
-        self.assertEqual(row["AIRLINE_CODE"], "UA")
-        self.assertEqual(row["ORIGIN"], "FLL")
-        self.assertEqual(row["DEST"], "EWR")
-        self.assertEqual(row["ROUTE"], "FLL_EWR")
-        self.assertEqual(row["DEP_HOUR"], 0)
-        self.assertEqual(row["DEP_MIN"], 55)
-        self.assertEqual(row["DEP_PERIOD"], "red_eye")
-        self.assertEqual(row["IS_WEEKEND"], 1)
-        self.assertEqual(row["IS_HOLIDAY_SEASON"], 1)
+        self.assertEqual(result["AIRLINE_CODE"], "UA")
+        self.assertEqual(result["ORIGIN"], "FLL")
+        self.assertEqual(result["DEST"], "EWR")
+        self.assertEqual(result["ROUTE"], "FLL_EWR")
+        self.assertEqual(result["DEP_HOUR"], 0)
+        self.assertEqual(result["DEP_MIN"], 55)
+        self.assertEqual(result["DEP_PERIOD"], "red_eye")
+        self.assertEqual(result["IS_WEEKEND"], 1)
+        self.assertEqual(result["IS_HOLIDAY_SEASON"], 1)
 
-    def test_create_modified_current_rows_changes_selected_features(self):
-        rows = [
+    def test_make_modified_current_changes_monitoring_distributions(self):
+        reference = pd.DataFrame(
             {
-                "AIRLINE_CODE": "UA",
-                "ORIGIN": "FLL",
-                "DEST": "EWR",
-                "ROUTE": "FLL_EWR",
-                "DEP_HOUR": 11,
-                "DEP_MIN": 30,
-                "DEP_PERIOD": "morning",
-                "IS_WEEKEND": 0,
-                "IS_HOLIDAY_SEASON": 0,
-                "IS_SUMMER_PEAK": 0,
-                "IS_COVID_YEAR": 0,
+                "AIRLINE_CODE": ["UA"] * 20,
+                "ORIGIN": ["FLL"] * 20,
+                "DEST": ["EWR"] * 20,
+                "ROUTE": ["FLL_EWR"] * 20,
+                "DEP_HOUR": [11] * 20,
+                "DEP_MIN": [30] * 20,
+                "DEP_PERIOD": ["morning"] * 20,
+                "IS_HOLIDAY_SEASON": [0] * 20,
             }
-            for _ in range(10)
-        ]
+        )
 
-        modified = create_modified_current_rows(rows)
+        current = make_modified_current(reference)
 
-        self.assertEqual(len(modified), len(rows))
-        self.assertGreater(sum(row["AIRLINE_CODE"] == "WN" for row in modified), 0)
-        self.assertGreater(sum(row["ORIGIN"] == "LAX" for row in modified), 0)
-        self.assertGreater(sum(row["DEP_PERIOD"] == "red_eye" for row in modified), 0)
+        self.assertEqual(len(current), len(reference))
+        self.assertGreater((current["AIRLINE_CODE"] == "WN").sum(), 0)
+        self.assertGreater((current["ORIGIN"] == "LAX").sum(), 0)
+        self.assertGreater((current["DEP_PERIOD"] == "red_eye").sum(), 0)
+        self.assertGreater((current["ROUTE"].str.startswith("LAX_")).sum(), 0)
 
-    def test_categorical_psi_detects_distribution_shift(self):
-        reference = ["UA"] * 90 + ["WN"] * 10
-        current = ["UA"] * 50 + ["WN"] * 50
+    def test_evaluate_scenario_outputs_metrics_for_both_frames(self):
+        reference = pd.DataFrame(
+            {
+                "CANCELLED": [0, 1],
+                "cancellation_probability": [0.1, 0.2],
+                "will_cancel": [0, 1],
+            }
+        )
+        current = pd.DataFrame(
+            {
+                "CANCELLED": [0, 1],
+                "cancellation_probability": [0.3, 0.5],
+                "will_cancel": [1, 1],
+            }
+        )
 
-        score = categorical_psi(reference, current)
+        metrics = evaluate_scenario(reference, current)
 
-        self.assertGreater(score, 0.25)
+        self.assertEqual(metrics["Scenario"].tolist(), ["Original_2023_Test", "Modified_Current"])
+        self.assertEqual(metrics["Rows"].tolist(), [2, 2])
+        self.assertAlmostEqual(metrics.loc[0, "Cancellation Rate"], 0.5)
+        self.assertAlmostEqual(metrics.loc[1, "Predicted Cancellation Rate"], 1.0)
 
 
 if __name__ == "__main__":
