@@ -1,0 +1,31 @@
+{
+    "feature_columns": [
+        "AIRLINE_CODE",
+        "ORIGIN",
+        "DEST",
+        "ROUTE",
+        "DEP_PERIOD",
+        "DEP_HOUR",
+        "DEP_MIN",
+        "IS_WEEKEND",
+        "IS_HOLIDAY_SEASON",
+        "IS_SUMMER_PEAK",
+        "IS_COVID_YEAR"
+    ],
+    "categorical_columns": [
+        "AIRLINE_CODE",
+        "ORIGIN",
+        "DEST",
+        "ROUTE",
+        "DEP_PERIOD"
+    ],
+    "numeric_columns": [
+        "DEP_HOUR",
+        "DEP_MIN",
+        "IS_WEEKEND",
+        "IS_HOLIDAY_SEASON",
+        "IS_SUMMER_PEAK",
+        "IS_COVID_YEAR"
+    ],
+    "optimal_threshold": 0.05231344327330589
+}
