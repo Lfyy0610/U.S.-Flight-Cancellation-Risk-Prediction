@@ -1,0 +1,13 @@
+{
+  "AIRLINE_CODE": "UA",
+  "ORIGIN": "FLL",
+  "DEST": "EWR",
+  "ROUTE": "FLL_EWR",
+  "DEP_PERIOD": "morning",
+  "DEP_HOUR": 11,
+  "DEP_MIN": 55,
+  "IS_WEEKEND": 0,
+  "IS_HOLIDAY_SEASON": 1,
+  "IS_SUMMER_PEAK": 0,
+  "IS_COVID_YEAR": 0
+}
